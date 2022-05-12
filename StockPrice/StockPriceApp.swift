@@ -11,7 +11,10 @@ import SwiftUI
 struct StockPriceApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationView{
+                StockDetailView(detailViewModel: DetailViewModel("GME"))
+            }
+            
         }
     }
 }
