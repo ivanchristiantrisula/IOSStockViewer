@@ -12,17 +12,26 @@ struct StockDetailView: View {
     @ObservedObject var detailViewModel : DetailViewModel
 
     var body: some View {
-        VStack(alignment: .leading){
-            List{
-                Section("Chart"){
-                    ChartView(detailViewModel: detailViewModel)
-                }
-                Section("Profile"){
-                    CompanyProfileView(detailViewModel: detailViewModel)
-                }
+        List{
+            Section{
+                ChartView(detailViewModel: detailViewModel)
+                
             }
+            .listRowInsets(EdgeInsets())
+            .background(Color(.secondarySystemBackground))
             
-        }.navigationTitle(detailViewModel.ticker)
+            Section("Profile"){
+                CompanyProfileView(detailViewModel: detailViewModel)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(detailViewModel.ticker)
+        .onAppear{
+            detailViewModel.load()
+        }.refreshable {
+            detailViewModel.load()
+        }
+        
         
     }
 }
@@ -39,28 +48,38 @@ struct ChartView : View {
             .frame(height : 300)
             .foregroundColor(Color(.secondarySystemBackground))
             .overlay(
-                VStack(alignment : .leading){
+                VStack(alignment : .leading, spacing: 40){
+                    
                     switch detailViewModel.chartLoadingState{
                     case .idle :
                         LineChartView(lineChartController: LineChartController(prices: (detailViewModel.quote?.close.compactMap{$0}) ?? [0],dragGesture:true))
                     case .loading :
-                        ProgressView()
+                        HStack{
+                            Spacer()
+                            ProgressView()
+                                .frame(height : 300)
+                            Spacer()
+                        }
+                        
                     }
                     
-                    
-                    
                 }.padding()
+                
+                
             )
-        Picker("Range", selection: $selectedRange){
-            ForEach(range, id:\.self){
-                Text($0)
+            Picker("Range", selection: $selectedRange){
+                ForEach(range, id:\.self){
+                    Text($0)
+                }
             }
-        }
-        .pickerStyle(.segmented)
-        .onChange(of: selectedRange) { newValue in
-            detailViewModel.range = newValue
-            detailViewModel.fetchChart()
-        }
+            .pickerStyle(.segmented)
+            .onChange(of: selectedRange) { newValue in
+                detailViewModel.range = newValue
+                detailViewModel.fetchChart()
+            }
+            .listRowBackground(Color(.secondarySystemBackground))
+            .listRowSeparator(.hidden, edges: .all)
+       
     }
 }
 

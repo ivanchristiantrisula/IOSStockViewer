@@ -21,6 +21,9 @@ class DetailViewModel : ObservableObject{
     
     init(_ ticker : String = "AAPL"){
         self.ticker = ticker
+    }
+    
+    func load () {
         fetchChart()
         fetchStockProfile ()
     }
