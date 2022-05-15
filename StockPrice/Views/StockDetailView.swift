@@ -10,9 +10,14 @@ import StockCharts
 
 struct StockDetailView: View {
     @ObservedObject var detailViewModel : DetailViewModel
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         List{
+            Text("Last close : $\(Int((detailViewModel.quote?.c.compactMap{$0}.last ?? 0).rounded(.awayFromZero)))")
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(colorScheme == .dark ? Color.black : Color(.secondarySystemBackground))
+                .listRowSeparator(.hidden, edges: .all)
             Section{
                 ChartView(detailViewModel: detailViewModel)
                 
@@ -27,7 +32,10 @@ struct StockDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(detailViewModel.ticker)
         .onAppear{
-            detailViewModel.load()
+            if(detailViewModel.quote == nil){
+                detailViewModel.load()
+            }
+            
         }.refreshable {
             detailViewModel.load()
         }
@@ -40,8 +48,9 @@ struct StockDetailView: View {
 
 struct ChartView : View {
     @ObservedObject var detailViewModel : DetailViewModel
-    @State var selectedRange = "1d"
-    let range = ["5m", "30m", "1h", "1d", "1wk"]
+    @State var selectedRange = "1w"
+    @Environment(\.colorScheme) var colorScheme
+    let range = ["1h", "1d", "1w","1mo","1y"]
     
     var body: some View {
         RoundedRectangle(cornerRadius: 25)
@@ -52,7 +61,7 @@ struct ChartView : View {
                     
                     switch detailViewModel.chartLoadingState{
                     case .idle :
-                        LineChartView(lineChartController: LineChartController(prices: (detailViewModel.quote?.close.compactMap{$0}) ?? [0],dragGesture:true))
+                        LineChartView(lineChartController: LineChartController(prices: (detailViewModel.quote?.c.compactMap{$0}) ?? [0],dragGesture:true))
                     case .loading :
                         HStack{
                             Spacer()
@@ -60,7 +69,12 @@ struct ChartView : View {
                                 .frame(height : 300)
                             Spacer()
                         }
-                        
+                    case .error :
+                        HStack{
+                            Spacer()
+                            Text("No Data")
+                            Spacer()
+                        }
                     }
                     
                 }.padding()
@@ -77,7 +91,7 @@ struct ChartView : View {
                 detailViewModel.range = newValue
                 detailViewModel.fetchChart()
             }
-            .listRowBackground(Color(.secondarySystemBackground))
+            .listRowBackground(colorScheme == .dark ? Color.black : Color(.secondarySystemBackground))
             .listRowSeparator(.hidden, edges: .all)
        
     }
@@ -91,7 +105,7 @@ struct CompanyProfileView : View {
     
     var body : some View {
         
-        Text(detailViewModel.meta?.symbol ?? "")
+        Text(detailViewModel.ticker)
             .fontWeight(.semibold)
             .font(.title2)
         Text(detailViewModel.stockProfile?.longBusinessSummary ?? "")
@@ -99,19 +113,19 @@ struct CompanyProfileView : View {
         HStack{
             Text("Industry")
             Spacer()
-            Text(detailViewModel.stockProfile?.industry ?? "")
+            Text(detailViewModel.stockProfile?.industry ?? "Unknown / API Hit Limit Reached")
                 .font(.caption)
         }
         HStack{
             Text("Website")
             Spacer()
-            Text(detailViewModel.stockProfile?.website ?? "")
+            Text(detailViewModel.stockProfile?.website ?? "Unknown / API Hit Limit Reached")
                 .font(.caption)
         }
         HStack{
             Text("Address")
             Spacer()
-            Text(detailViewModel.stockProfile?.address1 ?? "")
+            Text(detailViewModel.stockProfile?.address1 ?? "Unknown / API Hit Limit Reached")
                 .font(.caption)
         }
         HStack{
@@ -123,7 +137,7 @@ struct CompanyProfileView : View {
         HStack{
             Text("State")
             Spacer()
-            Text(detailViewModel.stockProfile?.state ?? "")
+            Text(detailViewModel.stockProfile?.state ?? "Unknown / API Hit Limit Reached")
                 .font(.caption)
         }
         

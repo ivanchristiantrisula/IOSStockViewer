@@ -52,6 +52,11 @@
       </BuildableProductRunnable>
       <EnvironmentVariables>
          <EnvironmentVariable
+            key = "FINNHUB_KEY"
+            value = "ca0b02aad3i0e3caeoig"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "API_KEY"
             value = "0VYj95HFEi4lkWPkCkssY3bKuX5YRcYj3ZJpYP5j"
             isEnabled = "YES">
