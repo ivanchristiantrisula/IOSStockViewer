@@ -12,33 +12,36 @@ struct WelcomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
 
      var body: some View {
-       VStack {
-         Spacer()
+         NavigationView{
+             VStack {
+               Spacer()
 
-         // 2
-//         Image("header_image")
-//           .resizable()
-//           .aspectRatio(contentMode: .fit)
+               // 2
+      //         Image("header_image")
+      //           .resizable()
+      //           .aspectRatio(contentMode: .fit)
 
-         Text("Welcome to Stock Watcher!")
-           .fontWeight(.black)
-           .foregroundColor(Color(.systemIndigo))
-           .font(.largeTitle)
-           .multilineTextAlignment(.center)
+               Text("Welcome to Stock Watcher!")
+                 .fontWeight(.black)
+                 .foregroundColor(Color(.systemIndigo))
+                 .font(.largeTitle)
+                 .multilineTextAlignment(.center)
 
-         Text("Lorem ipsum sit dolor amet Lorem ipsum sit dolor amet Lorem ipsum sit dolor amet Lorem ipsum sit dolor amet")
-           .fontWeight(.light)
-           .multilineTextAlignment(.center)
-           .padding()
+               Text("Lorem ipsum sit dolor amet Lorem ipsum sit dolor amet Lorem ipsum sit dolor amet Lorem ipsum sit dolor amet")
+                 .fontWeight(.light)
+                 .multilineTextAlignment(.center)
+                 .padding()
 
-         Spacer()
+               Spacer()
 
-         GoogleSignInButton()
-           .padding()
-           .onTapGesture {
-               authVM.signIn()
-           }
-       }
+               GoogleSignInButton()
+                 .padding()
+                 .onTapGesture {
+                     authVM.signIn()
+                 }
+             }
+         }
+       
      }
 }
 

@@ -12,13 +12,13 @@ class DetailViewModel : ObservableObject{
     @Published var ticker : String
     @Published var range : String = "1w"
     @Published var stockProfile : AssetProfile?
-    @Published var chartLoadingState : LoadingState = .idle
+    @Published var chartLoadingState : NetworkLoadingState = .idle
+    @Published var newsLoadingState : NetworkLoadingState = .idle
+    @Published var news : [News] = []
     
-    enum LoadingState {
-        case loading, idle, error
-    }
     
-    init(_ ticker : String = "AAPL"){
+    
+    init(_ ticker : String){
         self.ticker = ticker
     }
     
@@ -27,9 +27,13 @@ class DetailViewModel : ObservableObject{
         self.quote = quote
     }
     
-    func load () {
-        fetchChart()
+    func load (withGraph : Bool = true) {
+        if(withGraph){
+            fetchChart()
+        }
+        fetchStockNews()
         fetchStockProfile ()
+        
     }
     
     func fetchChart () {
@@ -78,6 +82,28 @@ class DetailViewModel : ObservableObject{
                     }
                 }catch{
                     print("Error decoding profile \(error)")
+                }
+            }
+        }
+    }
+    
+    func fetchStockNews() {
+        print("adfsadfs")
+        NetworkRequest().callStockNewsAPI(ticker: self.ticker) { data, error in
+            if let error = error {
+                print(error)
+            }
+            
+            if let data = data {
+                let decoder = JSONDecoder()
+                
+                do{
+                    print("Masokkkk")
+                    let decoded = try decoder.decode([News].self, from: data)
+                    DispatchQueue.main.async {
+                        self.news = decoded                    }
+                }catch{
+                    print(error)
                 }
             }
         }

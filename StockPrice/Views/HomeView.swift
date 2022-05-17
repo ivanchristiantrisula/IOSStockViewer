@@ -45,29 +45,32 @@ struct HomeView: View {
     @State private var dragging: GridData?
 
     var body: some View {
-        ScrollView {
-           LazyVGrid(columns: model.columns, spacing: 32) {
-                ForEach(model.data) { d in
-                    StockCardView(vm: HomeViewModel(d.ticker))
-                        .overlay(dragging?.id == d.id ? Color.white.opacity(0.8) : Color.clear)
-                        .onDrag {
-                            self.dragging = d
-                            return NSItemProvider(object: String(d.id.uuidString) as NSString)
-                        }
-                        .onDrop(of: [UTType.text], delegate: DragRelocateDelegate(item: d, listData: $model.data, current: $dragging))
-                        .contextMenu{
-                            Button {
-                                model.removeTicker(data: d)
-                            } label: {
-                                Label("Remove", systemImage : "trash")
+        NavigationView{
+            ScrollView {
+               LazyVGrid(columns: model.columns, spacing: 32) {
+                    ForEach(model.data) { d in
+                        StockCardView(vm: HomeViewModel(d.ticker))
+                            .overlay(dragging?.id == d.id ? Color.white.opacity(0.8) : Color.clear)
+                            .onDrag {
+                                self.dragging = d
+                                return NSItemProvider(object: String(d.id.uuidString) as NSString)
                             }
+                            .onDrop(of: [UTType.text], delegate: DragRelocateDelegate(item: d, listData: $model.data, current: $dragging))
+                            .contextMenu{
+                                Button {
+                                    model.removeTicker(data: d)
+                                } label: {
+                                    Label("Remove", systemImage : "trash")
+                                }
 
-                        }
-                }
-            }.animation(.default, value: model.data)
+                            }
+                    }
+                }.animation(.default, value: model.data)
+            }
+            .padding()
+            .navigationTitle("Watchlist")
         }
-        .padding()
-        .navigationTitle("Watchlist")
+        
     }
 }
 

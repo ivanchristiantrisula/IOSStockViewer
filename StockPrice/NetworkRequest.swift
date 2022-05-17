@@ -7,13 +7,19 @@
 
 import Foundation
 
+public enum NetworkLoadingState {
+    case loading, idle, error
+}
+
 class NetworkRequest {
+    
+    
     func callStockPriceAPI (ticker : String, range : String, completion: @escaping (_ data: Data?, _ error: Error?) -> Void) {
         
         let res = TimeUtility().getRes(range: range)
         let fromTo = TimeUtility().getFromToTime(range: range)
         
-        guard let url = URL(string: "https://finnhub.io/api/v1/stock/candle?symbol=\(ticker)&resolution=\(res)&from=\(String(fromTo[0]))&to=\(String(fromTo[1]))&token=ca0b02aad3i0e3caeoig") else {return}
+        guard let url = URL(string: "https://finnhub.io/api/v1/stock/candle?symbol=\(ticker)&resolution=\(res)&from=\(String(fromTo[0]))&to=\(String(fromTo[1]))&token=\(String(utf8String: getenv("FINNHUB_KEY"))!)") else {return}
         
         print(url.absoluteString)
         
@@ -56,7 +62,49 @@ class NetworkRequest {
         task.resume()
     }
     
+    func callStockSearchAPI(keyword : String, completion: @escaping(_ data : Data?, _ error : Error?) -> Void){
+        
+        
+        guard let url = URL(string: "https://finnhub.io/api/v1/search?q=\(keyword)&token=\(String(utf8String: getenv("FINNHUB_KEY"))!)") else {return}
+        
+        print("search stock : \(url.absoluteString)")
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let task = URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
+            if let error = error {
+                completion(nil, error)
+            }
+            
+            if let data = data {
+                completion(data, nil)
+            } else {
+                completion(nil, nil)
+            }
+        })
+        task.resume()
+    }
     
+    func callStockNewsAPI(ticker : String, completion: @escaping(_ data : Data?, _ error : Error?) -> Void){
+        guard let url = URL(string: "https://finnhub.io/api/v1/company-news?symbol=\(ticker)&from=2021-09-01&to=2021-09-09&token=ca0b02aad3i0e3caeoig") else {return}
+        
+        print("search news : \(url.absoluteString)")
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let task = URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
+            if let error = error {
+                completion(nil, error)
+            }
+            
+            if let data = data {
+                completion(data, nil)
+            } else {
+                completion(nil, nil)
+            }
+        })
+        task.resume()
+    }
 }
     
 class TimeUtility {

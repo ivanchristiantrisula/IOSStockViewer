@@ -28,13 +28,15 @@ struct StockDetailView: View {
             Section("Profile"){
                 CompanyProfileView(detailViewModel: detailViewModel)
             }
+            
+            Section("Recent News"){
+                RecentNews(detailViewModel: detailViewModel)
+            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(detailViewModel.ticker)
         .onAppear{
-            if(detailViewModel.quote == nil){
-                detailViewModel.load()
-            }
+            detailViewModel.load(withGraph : detailViewModel.quote == nil ? true : false)
             
         }.refreshable {
             detailViewModel.load()
@@ -143,6 +145,84 @@ struct CompanyProfileView : View {
         
     }
 }
+
+struct RecentNews : View {
+    @ObservedObject var detailViewModel : DetailViewModel
+    
+    
+    var body : some View {
+        ForEach(detailViewModel.news){post in
+            ZStack{
+                NewsCard(post: post)
+                    .padding(.bottom)
+            }.listRowInsets(EdgeInsets())
+        }
+        
+        
+    }
+}
+
+struct NewsCard: View {
+    var post : News
+    
+    
+    
+    var body: some View{
+        
+        ZStack(alignment: .top){
+            VStack{
+                Text(post.headline)
+                    .font(.headline)
+                    .frame(maxWidth : .infinity, alignment: .leading)
+                Spacer()
+                if((post.image) != nil && (post.image) != "null" ){
+                    AsyncImage(url: URL(string : post.image ?? "")){image in
+                        image.resizable()
+                    } placeholder: {
+                        ProgressView()
+                    }.frame(height: 200, alignment: .center)
+                        .aspectRatio(contentMode: .fit)
+                        .cornerRadius(10)
+                }
+                HStack(alignment: .top){
+                    VStack{
+                        Text(post.summary ?? "")
+                            .font(.subheadline)
+                            .frame(maxWidth : .infinity, alignment: .leading)
+                            .lineLimit(4)
+                    }
+                    
+                    
+                }
+                Spacer()
+                Text("\(post.datetime) ~ \(post.source)")
+                    .font(.caption2)
+                    .frame(maxWidth : .infinity, alignment: .leading)
+            }
+            
+        }
+        .padding()
+        .background(.regularMaterial).cornerRadius(16)
+    }
+}
+
+func getRelativeTime(_ rawString : String) -> String{
+    let RFC3339DateFormatter = DateFormatter()
+    RFC3339DateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    RFC3339DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+    RFC3339DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    
+    return RFC3339DateFormatter.date(from: rawString)?.timeAgoDisplay() ?? "Unknown"
+}
+
+extension Date {
+    func timeAgoDisplay() -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: self, relativeTo: Date())
+    }
+}
+
 
 //struct StockDetail_Previews: PreviewProvider {
 //    static var previews: some View {

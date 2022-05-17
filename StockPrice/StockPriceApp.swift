@@ -17,28 +17,24 @@ struct StockPriceApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            NavigationView{
-                
-                switch authVM.state{
-                case .signedIn:
-                    TabView{
-                        HomeView()
-                            .tabItem {
-                                Label("Wishlist", systemImage: "star")
-                            }
-                        
-                        SearchStockView()
-                            .tabItem{
-                                Label("Search", systemImage: "magnifyingglass")
-                            }
-                    }
+            switch authVM.state{
+            case .signedIn:
+                TabView{
+                    HomeView()
+                        .tabItem {
+                            Label("Wishlist", systemImage: "star")
+                        }
                     
-                        
-                case.signedOut:
-                    WelcomeView()
-                        .environmentObject(authVM)
+                    SearchStockView()
+                        .tabItem{
+                            Label("Search", systemImage: "magnifyingglass")
+                        }
                 }
                 
+                    
+            case.signedOut:
+                WelcomeView()
+                    .environmentObject(authVM)
             }
             
         }

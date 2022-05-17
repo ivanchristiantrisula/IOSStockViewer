@@ -12,7 +12,7 @@ struct OuterStockSearch : Decodable {
     let result : [StockSearchResult]?
 }
 
-struct StockSearchResult : Decodable {
+struct StockSearchResult : Decodable,Hashable {
     let description : String
     let displaySymbol : String
     let symbol : String
